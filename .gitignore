@@ -1,0 +1,8 @@
+.git
+.idea
+/venv
+/META
+/static
+.env
+Lib/
+Scripts/
