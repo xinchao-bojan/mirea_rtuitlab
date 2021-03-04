@@ -1,4 +1,1 @@
-python purchase\manage.py makemigrations
-python purchase\manage.py migrate
-
-python purchase\manage.py runserver 8002
+purchase\Scripts\activate & python purchase\manage.py makemigrations & python purchase\manage.py migrate & python purchase\manage.py runserver 8001
