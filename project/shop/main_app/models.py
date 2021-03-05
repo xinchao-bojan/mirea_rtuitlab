@@ -5,7 +5,6 @@ from django.utils import timezone
 
 from django.db import models
 
-# from custom_user.models import Cart, CustomUser
 CustomUser = get_user_model()
 
 

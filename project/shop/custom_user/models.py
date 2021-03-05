@@ -11,7 +11,7 @@ class CustomUserManager(BaseUserManager):
         user = self.model(email=self.normalize_email(email))
         user.set_password(password)
         user.save(using=self._db)
-        # Cart.objects.create(owner=user)
+
         user.save()
         return user
 
