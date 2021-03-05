@@ -5,7 +5,7 @@ class Factory(models.Model):
     title = models.CharField(max_length=255, verbose_name='Название завода', unique=True)
     productivity_coefficient = models.DecimalField(decimal_places=3, max_digits=5,
                                                    verbose_name='Коэффициент производительность')
-    available = models.PositiveIntegerField(verbose_name='Свободный товар')
+    available = models.PositiveIntegerField(verbose_name='Свободный товар',null=True,blank=True)
     CATEGORY = (
         ('grocery', 'Продуктовый завод'),
         ('restaurant', 'Ресторанный завод'),

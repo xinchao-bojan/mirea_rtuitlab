@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import generics, permissions
@@ -6,6 +7,11 @@ from rest_framework import status
 
 from .serializers import *
 from .models import *
+
+
+class CustomPagination(PageNumberPagination):
+    page_size = 10
+    max_page_size = 30
 
 
 class CreatePurchaseView(APIView):
@@ -26,10 +32,25 @@ class CreatePurchaseView(APIView):
                                            product_pk=elem['id'],
                                            quantity=elem['quantity'])
         serializer = PurchaseSerializer(p, context={'request': request})
-        return Response(status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class PurchaseByCategoryListView(APIView):
+    pagination_class = CustomPagination
+
+    def get(self, request,category):
+        p = Purchase.objects.filter(category=Category.objects.get(title=category)).order_by('category__title')
+        if p:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        serializer = PurchaseSerializer(p,
+                                        context={'request': request},
+                                        many=True)
+        return Response(serializer.data)
 
 
 class PurchaseListView(APIView):
+    pagination_class = CustomPagination
+
     def get(self, request):
         serializer = PurchaseSerializer(Purchase.objects.filter(owner=request.user).order_by('category__title'),
                                         context={'request': request},

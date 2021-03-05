@@ -15,6 +15,8 @@ class CooperationRequestView(APIView):
         except Factory.DoesNotExist or KeyError:
             return Response('Factory does not exist')
         if f.category_choicer != request.data['category']:
+            print(request.data['category'])
+            print(f.category_choicer)
             return Response('It is impossible to cooperate because of category')
 
         s, created = ShopTitle.objects.get_or_create(title=request.data['shop'])
@@ -54,7 +56,7 @@ def delivering():
                 'shop': s.title,
                 'products': json.dumps(queryset)}
         try:
-            r = requests.post('http://localhost:8001/api/shop/delivery/',
+            r = requests.post('http://localhost:8002/api/shop/delivery/',
                               data=data)
             for dr in DeliveryRequest.objects.filter(shop=s):
                 dr.queue = 1
