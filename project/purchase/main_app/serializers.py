@@ -7,7 +7,7 @@ class PurchaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Purchase
         depth = 1
-        fields = ['owner', 'final_price', 'purchaseproduct_set', 'category', 'pm_choicer']
+        fields = ['id', 'owner', 'final_price', 'purchaseproduct_set', 'category', 'pm_choicer']
 
 
 class PurchaseProductSerializer(serializers.ModelSerializer):

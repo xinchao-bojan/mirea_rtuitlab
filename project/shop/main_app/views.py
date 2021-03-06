@@ -65,8 +65,8 @@ class ClearCartView(APIView):
 class PurchasingView(APIView):
 
     def post(self, request):
-        r = requests.post('http://localhost:8001/api/purchase/check_user/', data={'email': request.user.email})
-        if r.status_code == 400:
+        r = requests.get('http://localhost:8001/api/purchase/check_user/', data={'email': request.user.email})
+        if r.status_code != 200:
             return Response('create acc, dude', status=status.HTTP_400_BAD_REQUEST)
         c, created = Cart.objects.get_or_create(owner=request.user)
         if c.cartproduct_set.count() == 0:

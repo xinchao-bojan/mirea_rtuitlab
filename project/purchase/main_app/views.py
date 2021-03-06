@@ -84,10 +84,11 @@ class UpdatePurchaseView(APIView):
     def put(self, request, pk):
         p = Purchase.objects.get(pk=pk)
         if 'category' in request.data:
-            try:
-                p.category = getCategory(request.data['category'], request.user)
-            except Category.DoesNotExist:
+            cat = getCategory(request.data['category'], request.user)
+            if cat is None:
                 return Response('u should create category before adding', status=status.HTTP_418_IM_A_TEAPOT)
+            p.category = cat
+            p.save()
         if 'payment' in request.data:
             p.pm_choicer = request.data['payment']
         p.save()
@@ -99,7 +100,7 @@ class CreateCategoryView(APIView):
     def post(self, request):
         c = getCategory(request.data['title'], request.user)
         if c is None:
-            Category.objects.create(request.data['title'], request.user)
+            c = Category.objects.create(title=request.data['title'], owner=request.user)
             return Response(f'Категория {c.title} успешно создана', status=status.HTTP_201_CREATED)
         return Response(f'Категория {c.title} была создана ранее', status=status.HTTP_400_BAD_REQUEST)
 
