@@ -8,6 +8,7 @@ CustomUser = get_user_model()
 class Category(models.Model):
     title = models.CharField(max_length=255, verbose_name='Название продукта', unique=True)
     owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name='Владелец', blank=True, null=True)
+    default = models.BooleanField(verbose_name='Стандартная категория', default=False)
 
     def __str__(self):
         return self.title
@@ -38,7 +39,7 @@ class Purchase(models.Model):
 
 class PurchaseProduct(models.Model):
     title = models.CharField(max_length=127, verbose_name='Наименование')
-    purchase = models.ForeignKey(Purchase, verbose_name='Корзина', on_delete=models.CASCADE)
+    purchase = models.ForeignKey(Purchase, verbose_name='Покупка', on_delete=models.CASCADE)
     product_pk = models.IntegerField(verbose_name='Артикул продукта')
     quantity = models.IntegerField(verbose_name='Количество', default=0)
 

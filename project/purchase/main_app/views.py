@@ -1,3 +1,5 @@
+import json
+
 from django.shortcuts import render
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
@@ -14,9 +16,23 @@ class CustomPagination(PageNumberPagination):
     max_page_size = 30
 
 
+def getCategory(name, user):
+    try:
+        c = Category.objects.get(title=name, default=True)
+        return c
+    except Category.DoesNotExist:
+        try:
+            c = Category.objects.get(default=False, title=name, owner=user)
+            return c
+        except Category.DoesNotExist:
+            return None
+
+
 class CreatePurchaseView(APIView):
     def post(self, request):
-        c, created = Category.objects.get_or_create(title=request.data['category'])
+        c = getCategory(request.data['category'], request.user)
+        if c is None:
+            return Response('fix category', status=status.HTTP_400_BAD_REQUEST)
         try:
             u = CustomUser.objects.get(email=request.data['email'])
         except CustomUser.DoesNotExist:
@@ -25,8 +41,7 @@ class CreatePurchaseView(APIView):
                                     title=request.data['title'],
                                     final_price=request.data['final_price'],
                                     category=c)
-
-        for elem in request.data['products']:
+        for elem in json.loads(request.data['products']):
             PurchaseProduct.objects.create(title=elem['title'],
                                            purchase=p,
                                            product_pk=elem['id'],
@@ -38,9 +53,12 @@ class CreatePurchaseView(APIView):
 class PurchaseByCategoryListView(APIView):
     pagination_class = CustomPagination
 
-    def get(self, request,category):
-        p = Purchase.objects.filter(category=Category.objects.get(title=category)).order_by('category__title')
-        if p:
+    def get(self, request, category):
+        c = getCategory(category, request.user)
+        if c is None:
+            return Response('fix category', status=status.HTTP_400_BAD_REQUEST)
+        p = Purchase.objects.filter(category=c).order_by('category__title')
+        if not p:
             return Response(status=status.HTTP_400_BAD_REQUEST)
         serializer = PurchaseSerializer(p,
                                         context={'request': request},
@@ -67,7 +85,7 @@ class UpdatePurchaseView(APIView):
         p = Purchase.objects.get(pk=pk)
         if 'category' in request.data:
             try:
-                p.category = Category.objects.get(title=request.data['category'])
+                p.category = getCategory(request.data['category'], request.user)
             except Category.DoesNotExist:
                 return Response('u should create category before adding', status=status.HTTP_418_IM_A_TEAPOT)
         if 'payment' in request.data:
@@ -79,7 +97,17 @@ class UpdatePurchaseView(APIView):
 
 class CreateCategoryView(APIView):
     def post(self, request):
-        c, created = Category.objects.get_or_create(title=request.data['title'])
-        if created:
+        c = getCategory(request.data['title'], request.user)
+        if c is None:
+            Category.objects.create(request.data['title'], request.user)
             return Response(f'Категория {c.title} успешно создана', status=status.HTTP_201_CREATED)
         return Response(f'Категория {c.title} была создана ранее', status=status.HTTP_400_BAD_REQUEST)
+
+
+class CheckAuthorization(APIView):
+    def get(self, request):
+        try:
+            CustomUser.objects.get(email=request.data['email'])
+            return Response(status=status.HTTP_200_OK)
+        except CustomUser.DoesNotExist:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
