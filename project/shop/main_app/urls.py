@@ -14,8 +14,8 @@ urlpatterns = [
     path('cart_list/', CartListView.as_view()),
     path('delivery/', DeliveryOfProductsView.as_view()),
     path('moderate/<int:pk>/', ModerateProductView.as_view()),
+    path('create_request/', CreateRequestView.as_view()),
 ]
-
 urlpatterns += [
     url(r'^auth/', include('djoser.urls')),
     url(r'^auth/', include('djoser.urls.jwt')),

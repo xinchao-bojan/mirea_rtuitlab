@@ -1,6 +1,7 @@
 import json
 
 import requests
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from decouple import config
@@ -10,20 +11,20 @@ from .serializers import *
 
 class CooperationRequestView(APIView):
     def post(self, request):
+        if request.data['key'] != config('SHOP_SECRET_KEY'):
+            return Response(status=status.HTTP_503_SERVICE_UNAVAILABLE)
         try:
             f = Factory.objects.get(title=request.data['factory'])
         except Factory.DoesNotExist or KeyError:
             return Response('Factory does not exist')
         if f.category_choicer != request.data['category']:
-            print(request.data['category'])
-            print(f.category_choicer)
             return Response('It is impossible to cooperate because of category')
 
         s, created = ShopTitle.objects.get_or_create(title=request.data['shop'])
 
         try:
             queryset = []
-            for product in request.data['products']:
+            for product in json.loads(request.data['products']):
                 if (product['quantity'] < 1) or (f.available - product['quantity'] < 0):
                     for elem in queryset:
                         elem.delete

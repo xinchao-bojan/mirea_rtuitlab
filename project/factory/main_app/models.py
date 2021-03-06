@@ -5,7 +5,7 @@ class Factory(models.Model):
     title = models.CharField(max_length=255, verbose_name='Название завода', unique=True)
     productivity_coefficient = models.DecimalField(decimal_places=3, max_digits=5,
                                                    verbose_name='Коэффициент производительность')
-    available = models.PositiveIntegerField(verbose_name='Свободный товар',null=True,blank=True)
+    available = models.PositiveIntegerField(verbose_name='Свободный товар', null=True, blank=True)
     CATEGORY = (
         ('grocery', 'Продуктовый завод'),
         ('restaurant', 'Ресторанный завод'),
@@ -53,6 +53,9 @@ class DeliveryRequest(models.Model):
     product = models.ForeignKey(Product, verbose_name='Продукт', on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(verbose_name='Количество')
     queue = models.PositiveIntegerField(verbose_name='Количество неотправленных поставок', default=1)
+
+    def __str__(self):
+        return f'{self.shop.title} + {self.factory.title}'
 
     def delete(self, *args, **kwargs):
         f = self.factory

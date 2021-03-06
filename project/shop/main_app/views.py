@@ -13,7 +13,7 @@ from .models import *
 
 class ProductListView(generics.ListAPIView):
     serializer_class = ProductSerializer
-    queryset = Product.objects.all()
+    queryset = Product.objects.filter(moderated=True)
 
 
 class CartListView(APIView):
@@ -102,6 +102,7 @@ class PurchasingView(APIView):
 
         if r.status_code == 200:
             return Response(data, status=status.HTTP_201_CREATED)
+        sc.delete()
         return Response(':(', status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -111,6 +112,7 @@ class DeliveryOfProductsView(APIView):
         if request.data['key'] != config('SECRET_KEY'):
             return Response(status=status.HTTP_503_SERVICE_UNAVAILABLE)
         data = json.loads(request.data['products'])  #
+        print(data)
         s = Shop.objects.get(title=request.data['shop'])  #
         queryset = []
         for product in data:
@@ -138,3 +140,14 @@ class ModerateProductView(APIView):
         p.save()
         serializer = ProductSerializer(p, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class CreateRequestView(APIView):
+    def post(self, request):
+        r = requests.post('http://localhost:8003/api/factory/request/',
+                          data={'key': config('SECRET_KEY'),
+                                'factory': request.data['factory'],
+                                'shop': request.data['shop'],
+                                'category': request.data['category'],
+                                'products': json.dumps(request.data['products'])})
+        return Response(status=r.status_code)
