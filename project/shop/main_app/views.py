@@ -31,7 +31,6 @@ class ProductInShopView(APIView):
 
 class ProductDetailView(APIView):
     def get(self, request, shop_pk, product_pk):
-        print(shop_pk)
         serializer = ProductSerializer(Product.objects.get(pk=product_pk),
                                        context={'request': request})
         return Response(serializer.data)
@@ -52,11 +51,14 @@ class AddToCartView(APIView):
             return Response('U can\'t add this product right now', status=status.HTTP_400_BAD_REQUEST)
         c, created = Cart.objects.get_or_create(owner=request.user)
         if c.current_shop == '' or c.current_shop == p.shop.title:
-            cp, created = CartProduct.objects.get_or_create(main_product=p,
-                                                            quantity=request.data['quantity'],  #
-                                                            cart=c)
-            c.current_shop = cp.main_product.shop.title
-            c.save()
+            try:
+                cp, created = CartProduct.objects.get_or_create(main_product=p,
+                                                                quantity=request.data['quantity'],
+                                                                cart=c)
+                c.current_shop = cp.main_product.shop.title
+                c.save()
+            except KeyError:
+                return Response('Add quantity to ur request', status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response(f'U tried to steal products from {c.current_shop}. U r banned',
                             status=status.HTTP_451_UNAVAILABLE_FOR_LEGAL_REASONS)
@@ -118,7 +120,6 @@ class PurchasingView(APIView):
                 'title': shop.title,
                 'final_price': sc.final_price,
                 'products': json.dumps(queryset)}
-        print(queryset)
         r = requests.post('http://localhost:8001/api/purchase/create_purchase/', data=data)
 
         if r.status_code == 200:
@@ -130,18 +131,20 @@ class PurchasingView(APIView):
 class DeliveryOfProductsView(APIView):
 
     def post(self, request):
-        if request.data['key'] != config('SECRET_KEY'):
-            return Response(status=status.HTTP_503_SERVICE_UNAVAILABLE)
-        data = json.loads(request.data['products'])  #
-        print(data)
-        s = Shop.objects.get(title=request.data['shop'])  #
-        queryset = []
-        for product in data:
-            p, created = Product.objects.get_or_create(title=product['title'],  #
-                                                       shop=s)
-            p.quantity += product['quantity']
-            p.save()
-            queryset.append(p)
+        try:
+            if request.data['key'] != config('SECRET_KEY'):
+                return Response(status=status.HTTP_503_SERVICE_UNAVAILABLE)
+            data = json.loads(request.data['products'])
+            s = Shop.objects.get(title=request.data['shop'])
+            queryset = []
+            for product in data:
+                p, created = Product.objects.get_or_create(title=product['title'],
+                                                           shop=s)
+                p.quantity += product['quantity']
+                p.save()
+                queryset.append(p)
+        except KeyError:
+            return Response('Add all info to ur request', status=status.HTTP_400_BAD_REQUEST)
         serializer = ProductSerializer(queryset, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
 
@@ -155,8 +158,11 @@ class ModerateProductView(APIView):
         p = Product.objects.get(pk=pk)
         if not p in Product.objects.filter(moderated=False):
             return Response('its already moderated', status=status.HTTP_400_BAD_REQUEST)
-        p.description = request.data['description']  #
-        p.price = request.data['price']  #
+        try:
+            p.description = request.data['description']
+            p.price = request.data['price']
+        except KeyError:
+            return Response('Add all info to ur request', status=status.HTTP_400_BAD_REQUEST)
         p.moderated = True
         p.save()
         serializer = ProductSerializer(p, context={'request': request})
@@ -165,10 +171,13 @@ class ModerateProductView(APIView):
 
 class CreateRequestView(APIView):
     def post(self, request):
-        r = requests.post('http://localhost:8003/api/factory/request/',
-                          data={'key': config('SECRET_KEY'),
-                                'factory': request.data['factory'],
-                                'shop': request.data['shop'],
-                                'category': request.data['category'],
-                                'products': json.dumps(request.data['products'])})
+        try:
+            r = requests.post('http://localhost:8003/api/factory/request/',
+                              data={'key': config('SECRET_KEY'),
+                                    'factory': request.data['factory'],
+                                    'shop': request.data['shop'],
+                                    'category': request.data['category'],
+                                    'products': json.dumps(request.data['products'])})
+        except KeyError:
+            return Response('Add all info to ur request',status=status.HTTP_400_BAD_REQUEST)
         return Response(status=r.status_code)

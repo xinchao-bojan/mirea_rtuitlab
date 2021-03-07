@@ -30,23 +30,26 @@ def getCategory(name, user):
 
 class CreatePurchaseView(APIView):
     def post(self, request):
-        c = getCategory(request.data['category'], request.user)
-        if c is None:
-            return Response('fix category', status=status.HTTP_400_BAD_REQUEST)
         try:
-            u = CustomUser.objects.get(email=request.data['email'])
-        except CustomUser.DoesNotExist:
-            return Response('Дядя, создай тут акк перед тем, как юзать сервис', status=status.HTTP_400_BAD_REQUEST)
-        p = Purchase.objects.create(owner=u,
-                                    title=request.data['title'],
-                                    final_price=request.data['final_price'],
-                                    category=c)
-        for elem in json.loads(request.data['products']):
-            PurchaseProduct.objects.create(title=elem['title'],
-                                           purchase=p,
-                                           product_pk=elem['id'],
-                                           quantity=elem['quantity'])
-        serializer = PurchaseSerializer(p, context={'request': request})
+            c = getCategory(request.data['category'], request.user)
+            if c is None:
+                return Response('fix category', status=status.HTTP_400_BAD_REQUEST)
+            try:
+                u = CustomUser.objects.get(email=request.data['email'])
+            except CustomUser.DoesNotExist:
+                return Response('Дядя, создай тут акк перед тем, как юзать сервис', status=status.HTTP_400_BAD_REQUEST)
+            p = Purchase.objects.create(owner=u,
+                                        title=request.data['title'],
+                                        final_price=request.data['final_price'],
+                                        category=c)
+            for elem in json.loads(request.data['products']):
+                PurchaseProduct.objects.create(title=elem['title'],
+                                               purchase=p,
+                                               product_pk=elem['id'],
+                                               quantity=elem['quantity'])
+            serializer = PurchaseSerializer(p, context={'request': request})
+        except KeyError:
+            return Response('Add all info to ur request', status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -98,7 +101,11 @@ class UpdatePurchaseView(APIView):
 
 class CreateCategoryView(APIView):
     def post(self, request):
-        c = getCategory(request.data['title'], request.user)
+        try:
+            c = getCategory(request.data['title'], request.user)
+        except KeyError:
+            return Response('Add all info to ur request', status=status.HTTP_400_BAD_REQUEST)
+
         if c is None:
             c = Category.objects.create(title=request.data['title'], owner=request.user)
             return Response(f'Категория {c.title} успешно создана', status=status.HTTP_201_CREATED)
@@ -110,5 +117,6 @@ class CheckAuthorization(APIView):
         try:
             CustomUser.objects.get(email=request.data['email'])
             return Response(status=status.HTTP_200_OK)
-        except CustomUser.DoesNotExist:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+        except CustomUser.DoesNotExist or KeyError:
+            return Response('Add all info to ur request', status=status.HTTP_400_BAD_REQUEST)
+
