@@ -11,9 +11,30 @@ from .serializers import *
 from .models import *
 
 
-class ProductListView(generics.ListAPIView):
-    serializer_class = ProductSerializer
-    queryset = Product.objects.filter(moderated=True)
+# class ProductListView(generics.ListAPIView):
+#     serializer_class = ProductSerializer
+#     queryset = Product.objects.filter(moderated=True)
+
+class ShopListView(generics.ListAPIView):
+    serializer_class = ShopSerializer
+    queryset = Shop.objects.all().order_by('-title')
+
+
+class ProductInShopView(APIView):
+    def get(self, request, shop_pk):
+        s = Shop.objects.get(pk=shop_pk)
+        serializer = ProductMPSerializer(Product.objects.filter(shop=s).order_by('-title'),
+                                         context={'request': request},
+                                         many=True)
+        return Response(serializer.data)
+
+
+class ProductDetailView(APIView):
+    def get(self, request, shop_pk, product_pk):
+        print(shop_pk)
+        serializer = ProductSerializer(Product.objects.get(pk=product_pk),
+                                       context={'request': request})
+        return Response(serializer.data)
 
 
 class CartListView(APIView):

@@ -9,6 +9,13 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class ProductMPSerializer(serializers.ModelSerializer):
+    class Meta:
+        depth = 1
+        model = Product
+        fields = ('id', 'title',)
+
+
 class CartSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cart
@@ -28,3 +35,10 @@ class CheckProductSerializer(serializers.ModelSerializer):
         depth = 1
         model = CheckProduct
         fields = ('title', 'id', 'quantity',)
+
+
+class ShopSerializer(serializers.ModelSerializer):
+    class Meta:
+        depth = 1
+        model = Shop
+        fields = ('title', 'category_choicer')

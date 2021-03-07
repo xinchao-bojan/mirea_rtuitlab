@@ -6,7 +6,9 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('all/', ProductListView.as_view()),
+    path('shops/', ShopListView.as_view()),
+    path('shops/<int:shop_pk>/', ProductInShopView.as_view()),
+    path('shops/<int:shop_pk>/<int:product_pk>/', ProductDetailView.as_view()),
     path('add_to_cart/<int:pk>/', AddToCartView.as_view()),
     path('delete_from_cart/<int:cp_pk>/', DeleteFromCartView.as_view()),
     path('clear_cart/', ClearCartView.as_view()),
