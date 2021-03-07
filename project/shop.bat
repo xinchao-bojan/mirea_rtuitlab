@@ -1,1 +1,1 @@
-shop\Scripts\activate & python shop\manage.py makemigrations & python shop\manage.py migrate & python shop\manage.py runserver 8002
+purchase\Scripts\activate & docker-compose up
