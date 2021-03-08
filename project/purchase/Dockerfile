@@ -1,6 +1,11 @@
 FROM python:3
+
+ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED=1
-WORKDIR /code
-COPY requirements.txt /code/
+
+RUN mkdir -p /usr/src/purchase/
+WORKDIR /usr/src/purchase
+COPY requirements.txt /usr/src/purchase/
 RUN pip install -r requirements.txt
-COPY . /code/
+COPY . /usr/src/purchase/
+
