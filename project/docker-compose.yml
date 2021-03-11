@@ -3,23 +3,28 @@ version: '3.7'
 services:
   purchase:
     build: ./purchase
-    command: sh -c "python3 manage.py runserver 0.0.0.0:8001"
+    command: sh -c " gunicorn --bind 0.0.0.0:8001 purchase.wsgi"
     expose:
       - 8001
-    ports:
-      - "8001:8001"
+
   shop:
     build: ./shop
-    command: sh -c "python3 manage.py runserver 0.0.0.0:8002"
+    command: sh -c " gunicorn --bind 0.0.0.0:8002 shop.wsgi"
     expose:
       - 8002
-    ports:
-      - "8002:8002"
+
   factory:
     build: ./factory
-    command: sh -c "python3 manage.py runserver 0.0.0.0:8003"
+    command: sh -c " gunicorn --bind 0.0.0.0:8003 factory.wsgi"
     expose:
       - 8003
-    ports:
-      - "8003:8003"
 
+
+  nginx:
+    build: ./nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - shop
+      - purchase
+      - factory

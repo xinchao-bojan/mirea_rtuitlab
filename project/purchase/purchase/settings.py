@@ -26,7 +26,7 @@ SECRET_KEY = ')+%k9^ifmr(&zrq+-dji0^1htc0#=g-0nk1nd&(0+74s1w+#ku'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['purchase']
 
 
 # Application definition

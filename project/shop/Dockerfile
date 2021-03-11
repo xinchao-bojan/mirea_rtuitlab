@@ -9,3 +9,4 @@ COPY requirements.txt /usr/src/shop/
 RUN pip install -r requirements.txt
 COPY . /usr/src/shop/
 
+
