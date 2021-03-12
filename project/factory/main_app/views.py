@@ -45,7 +45,6 @@ class CooperationRequestView(APIView):
 
 
 def delivering():
-
     for s in ShopTitle.objects.all():
         queryset = []
         for dr in DeliveryRequest.objects.filter(shop=s):
@@ -57,7 +56,7 @@ def delivering():
                 'shop': s.title,
                 'products': json.dumps(queryset)}
         try:
-            r = requests.post('http://localhost:8002/api/shop/delivery/',
+            r = requests.post('http://localhost:80/api/shop/delivery/',
                               data=data)
             for dr in DeliveryRequest.objects.filter(shop=s):
                 dr.queue = 1
@@ -67,10 +66,8 @@ def delivering():
                 dr.queue += 1
                 dr.save()
 
-
 class KEK(APIView):
     def post(self, request):
-        print(config('SHOP_SECRET_KEY'))
         for s in ShopTitle.objects.all():
             queryset = []
             for dr in DeliveryRequest.objects.filter(shop=s):
@@ -78,15 +75,16 @@ class KEK(APIView):
                      'quantity': dr.quantity}
                 queryset.append(d)
 
-            data = {'shop': s.title,
+            data = {'key': config('SHOP_SECRET_KEY'),
+                    'shop': s.title,
                     'products': json.dumps(queryset)}
             try:
-                r = requests.post('http://localhost:8001/api/shop/delivery/',
+                r = requests.post('http://localhost:80/api/shop/delivery/',
                                   data=data)
                 for dr in DeliveryRequest.objects.filter(shop=s):
                     dr.queue = 1
                     dr.save()
-            except BaseException:
+            except OSError:
                 for dr in DeliveryRequest.objects.filter(shop=s):
                     dr.queue += 1
                     dr.save()
