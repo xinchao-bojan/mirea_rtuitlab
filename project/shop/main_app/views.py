@@ -11,10 +11,6 @@ from .serializers import *
 from .models import *
 
 
-# class ProductListView(generics.ListAPIView):
-#     serializer_class = ProductSerializer
-#     queryset = Product.objects.filter(moderated=True)
-
 class ShopListView(generics.ListAPIView):
     serializer_class = ShopSerializer
     queryset = Shop.objects.all().order_by('-title')
@@ -22,7 +18,10 @@ class ShopListView(generics.ListAPIView):
 
 class ProductInShopView(APIView):
     def get(self, request, shop_pk):
-        s = Shop.objects.get(pk=shop_pk)
+        try:
+            s = Shop.objects.get(pk=shop_pk)
+        except Shop.DoesNotExist:
+            return Response("Shop Does Not Exist", status=status.HTTP_404_NOT_FOUND)
         serializer = ProductMPSerializer(Product.objects.filter(shop=s).order_by('-title'),
                                          context={'request': request},
                                          many=True)
@@ -31,8 +30,11 @@ class ProductInShopView(APIView):
 
 class ProductDetailView(APIView):
     def get(self, request, shop_pk, product_pk):
-        serializer = ProductSerializer(Product.objects.get(pk=product_pk),
-                                       context={'request': request})
+        try:
+            serializer = ProductSerializer(Product.objects.get(pk=product_pk),
+                                           context={'request': request})
+        except Product.DoesNotExist:
+            return Response("Product Does Not Exist", status=status.HTTP_404_NOT_FOUND)
         return Response(serializer.data)
 
 
@@ -46,7 +48,10 @@ class CartListView(APIView):
 
 class AddToCartView(APIView):
     def post(self, request, pk):
-        p = Product.objects.get(pk=pk)
+        try:
+            p = Product.objects.get(pk=pk)
+        except Product.DoesNotExist:
+            return Response("Product Does Not Exist", status=status.HTTP_404_NOT_FOUND)
         if not p.moderated:
             return Response('U can\'t add this product right now', status=status.HTTP_400_BAD_REQUEST)
         c, created = Cart.objects.get_or_create(owner=request.user)
@@ -69,7 +74,10 @@ class AddToCartView(APIView):
 class DeleteFromCartView(APIView):
 
     def delete(self, request, cp_pk):
-        cp = CartProduct.objects.get(pk=cp_pk)
+        try:
+            cp = CartProduct.objects.get(pk=cp_pk)
+        except CartProduct.DoesNotExist:
+            return Response("CartProduct Does Not Exist", status=status.HTTP_404_NOT_FOUND)
         cp.delete()
         serializer = CartSerializer(cp.cart, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -88,7 +96,7 @@ class ClearCartView(APIView):
 class PurchasingView(APIView):
 
     def post(self, request):
-        r = requests.get('http://localhost:8001/api/purchase/check_user/', data={'email': request.user.email})
+        r = requests.get('http://localhost:80/api/purchase/check_user/', data={'email': request.user.email})
         if r.status_code != 200:
             return Response('create acc, dude', status=status.HTTP_400_BAD_REQUEST)
         c, created = Cart.objects.get_or_create(owner=request.user)
@@ -135,7 +143,10 @@ class DeliveryOfProductsView(APIView):
             if request.data['key'] != config('SECRET_KEY'):
                 return Response(status=status.HTTP_503_SERVICE_UNAVAILABLE)
             data = json.loads(request.data['products'])
-            s = Shop.objects.get(title=request.data['shop'])
+            try:
+                s = Shop.objects.get(title=request.data['shop'])
+            except Shop.DoesNotExist:
+                return Response("Shop Does Not Exist", status=status.HTTP_404_NOT_FOUND)
             queryset = []
             for product in data:
                 p, created = Product.objects.get_or_create(title=product['title'],
@@ -155,8 +166,11 @@ class ModerateProductView(APIView):
         return Response(serializer.data)
 
     def put(self, request, pk):
-        p = Product.objects.get(pk=pk)
-        if not p in Product.objects.filter(moderated=False):
+        try:
+            p = Product.objects.get(pk=pk)
+        except Product.DoesNotExist:
+            return Response("Product Does Not Exist", status=status.HTTP_404_NOT_FOUND)
+        if p not in Product.objects.filter(moderated=False):
             return Response('its already moderated', status=status.HTTP_400_BAD_REQUEST)
         try:
             p.description = request.data['description']
@@ -179,5 +193,5 @@ class CreateRequestView(APIView):
                                     'category': request.data['category'],
                                     'products': json.dumps(request.data['products'])})
         except KeyError:
-            return Response('Add all info to ur request',status=status.HTTP_400_BAD_REQUEST)
+            return Response('Add all info to ur request', status=status.HTTP_400_BAD_REQUEST)
         return Response(status=r.status_code)

@@ -15,7 +15,10 @@ services:
 
   factory:
     build: ./factory
-    command: sh -c "python3 manage.py crontab add && gunicorn --bind 0.0.0.0:8003 factory.wsgi"
+    command: sh -c "python3 manage.py collectstatic --noinput &&  gunicorn --bind 0.0.0.0:8003 factory.wsgi"
+    volumes:
+      - static:/usr/src/factory/static
+      - D:/RTUITLAB/project/factory:/usr/src/factory
     expose:
       - 8003
 
@@ -24,7 +27,13 @@ services:
     build: ./nginx
     ports:
       - "80:80"
+    volumes:
+      - static:/usr/src/factory/static
+      - D:/RTUITLAB/project/factory:/usr/src/factory
     depends_on:
       - shop
       - purchase
       - factory
+
+volumes:
+  static:

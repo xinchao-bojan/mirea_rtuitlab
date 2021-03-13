@@ -118,13 +118,15 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 CRONJOBS = [
-    ('*/1 * * * *', 'main_app.views.delivering')
+    ('*/1 * * * *', 'main_app.cron.delivering')
 ]
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = os.path.join(os.path.abspath(os.curdir), 'static')
+# STATICFILES_DIRS = [
+#     os.path.join(os.path.abspath(os.curdir), '/static/')
+# ]
 
+MEDIA_ROOT = str(BASE_DIR) + '/media/'
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-STATICFILES_DIRS = [(os.path.join(BASE_DIR, 'static_dev'))]
+CORS_ORIGIN_ALLOW_ALL = True

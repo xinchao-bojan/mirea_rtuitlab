@@ -81,8 +81,11 @@ class PurchaseListView(APIView):
 
 class UpdatePurchaseView(APIView):
     def get(self, request, pk):
-        serializer = PurchaseSerializer(Purchase.objects.get(pk=pk), context={'request': request})
-        return Response(serializer.data)
+        try:
+            serializer = PurchaseSerializer(Purchase.objects.get(pk=pk), context={'request': request})
+        except Purchase.DoesNotExist:
+            return Response('Purchase Does Not Exist', status=status.HTTP_404_NOT_FOUND)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, pk):
         p = Purchase.objects.get(pk=pk)
@@ -119,4 +122,3 @@ class CheckAuthorization(APIView):
             return Response(status=status.HTTP_200_OK)
         except CustomUser.DoesNotExist or KeyError:
             return Response('Add all info to ur request', status=status.HTTP_400_BAD_REQUEST)
-

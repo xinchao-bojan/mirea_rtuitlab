@@ -45,6 +45,7 @@ class CooperationRequestView(APIView):
 
 
 def delivering():
+    print("00000000000000000000000000000000000000000000")
     for s in ShopTitle.objects.all():
         queryset = []
         for dr in DeliveryRequest.objects.filter(shop=s):
