@@ -30,8 +30,11 @@ class Purchase(models.Model):
     pm_choicer = models.CharField(max_length=7, verbose_name='Тип оплаты', default='default')
 
     def save(self, *args, **kwargs):
-        self.date = timezone.now()
-        super().save(*args, **kwargs)
+        if self.final_price <= 0:
+            super().delete()
+        else:
+            self.date = timezone.now()
+            super().save(*args, **kwargs)
 
     def __str__(self):
         return f'{self.owner} {self.title}'
@@ -40,8 +43,8 @@ class Purchase(models.Model):
 class PurchaseProduct(models.Model):
     title = models.CharField(max_length=127, verbose_name='Наименование')
     purchase = models.ForeignKey(Purchase, verbose_name='Покупка', on_delete=models.CASCADE)
-    product_pk = models.IntegerField(verbose_name='Артикул продукта')
-    quantity = models.IntegerField(verbose_name='Количество', default=0)
+    product_pk = models.PositiveIntegerField(verbose_name='Артикул продукта')
+    quantity = models.PositiveIntegerField(verbose_name='Количество', default=0)
 
     def __str__(self):
         return self.title

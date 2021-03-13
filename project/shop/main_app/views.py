@@ -9,14 +9,18 @@ from rest_framework import generics, permissions, status
 from decouple import config
 from .serializers import *
 from .models import *
+from .permissions import *
 
 
 class ShopListView(generics.ListAPIView):
     serializer_class = ShopSerializer
     queryset = Shop.objects.all().order_by('-title')
+    permission_classes = permissions.IsAuthenticatedOrReadOnly
 
 
 class ProductInShopView(APIView):
+    permission_classes = permissions.IsAuthenticatedOrReadOnly
+
     def get(self, request, shop_pk):
         try:
             s = Shop.objects.get(pk=shop_pk)
@@ -29,6 +33,8 @@ class ProductInShopView(APIView):
 
 
 class ProductDetailView(APIView):
+    permission_classes = permissions.IsAuthenticatedOrReadOnly
+
     def get(self, request, shop_pk, product_pk):
         try:
             serializer = ProductSerializer(Product.objects.get(pk=product_pk),
@@ -39,6 +45,7 @@ class ProductDetailView(APIView):
 
 
 class CartListView(APIView):
+    permission_classes = IsOwner
 
     def get(self, request):
         cart, created = Cart.objects.get_or_create(owner=request.user)
@@ -47,6 +54,8 @@ class CartListView(APIView):
 
 
 class AddToCartView(APIView):
+    permission_classes = permissions.IsAuthenticated
+
     def post(self, request, pk):
         try:
             p = Product.objects.get(pk=pk)
@@ -72,6 +81,7 @@ class AddToCartView(APIView):
 
 
 class DeleteFromCartView(APIView):
+    permission_classes = IsOwner
 
     def delete(self, request, cp_pk):
         try:
@@ -84,6 +94,7 @@ class DeleteFromCartView(APIView):
 
 
 class ClearCartView(APIView):
+    permission_classes = IsOwner
 
     def delete(self, request):
         cart, created = Cart.objects.get_or_create(owner=request.user)
@@ -94,6 +105,7 @@ class ClearCartView(APIView):
 
 
 class PurchasingView(APIView):
+    permission_classes = permissions.IsAuthenticated
 
     def post(self, request):
         r = requests.get('http://localhost:80/api/purchase/check_user/', data={'email': request.user.email})
@@ -123,12 +135,13 @@ class PurchasingView(APIView):
                              'quantity': cp.quantity})
             elem.delete()
 
-        data = {'email': request.user.email,
+        data = {'key': config('PURCHASE_SECRET_KEY'),
+                'email': request.user.email,
                 'category': shop.category_choicer,
                 'title': shop.title,
                 'final_price': sc.final_price,
                 'products': json.dumps(queryset)}
-        r = requests.post('http://localhost:8001/api/purchase/create_purchase/', data=data)
+        r = requests.post('http://localhost:80/api/purchase/create_purchase/', data=data)
 
         if r.status_code == 200:
             return Response(data, status=status.HTTP_201_CREATED)
@@ -161,6 +174,8 @@ class DeliveryOfProductsView(APIView):
 
 
 class ModerateProductView(APIView):
+    permission_classes = IsAdmin
+
     def get(self, request, pk):
         serializer = ProductSerializer(Product.objects.filter(moderated=False), context={'request': request}, many=True)
         return Response(serializer.data)
@@ -184,9 +199,11 @@ class ModerateProductView(APIView):
 
 
 class CreateRequestView(APIView):
+    permission_classes = IsAdmin
+
     def post(self, request):
         try:
-            r = requests.post('http://localhost:8003/api/factory/request/',
+            r = requests.post('http://localhost:80/api/factory/request/',
                               data={'key': config('SECRET_KEY'),
                                     'factory': request.data['factory'],
                                     'shop': request.data['shop'],

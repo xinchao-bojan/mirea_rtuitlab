@@ -6,9 +6,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import generics, permissions
 from rest_framework import status
+from decouple import config
 
 from .serializers import *
 from .models import *
+from .permissions import *
 
 
 class CustomPagination(PageNumberPagination):
@@ -29,7 +31,14 @@ def getCategory(name, user):
 
 
 class CreatePurchaseView(APIView):
+
     def post(self, request):
+        try:
+            if request.data['key'] != config('SECRET_KEY'):
+                return Response('wrong key',status=status.HTTP_404_NOT_FOUND)
+        except KeyError:
+            return Response('u are not a shop', status=status.HTTP_404_NOT_FOUND)
+
         try:
             c = getCategory(request.data['category'], request.user)
             if c is None:
@@ -55,6 +64,7 @@ class CreatePurchaseView(APIView):
 
 class PurchaseByCategoryListView(APIView):
     pagination_class = CustomPagination
+    permission_classes = permissions.IsAuthenticated
 
     def get(self, request, category):
         c = getCategory(category, request.user)
@@ -71,6 +81,7 @@ class PurchaseByCategoryListView(APIView):
 
 class PurchaseListView(APIView):
     pagination_class = CustomPagination
+    permission_classes = permissions.IsAuthenticated
 
     def get(self, request):
         serializer = PurchaseSerializer(Purchase.objects.filter(owner=request.user).order_by('category__title'),
@@ -80,6 +91,8 @@ class PurchaseListView(APIView):
 
 
 class UpdatePurchaseView(APIView):
+    permission_classes = permissions.IsAuthenticated
+
     def get(self, request, pk):
         try:
             serializer = PurchaseSerializer(Purchase.objects.get(pk=pk), context={'request': request})
@@ -103,6 +116,8 @@ class UpdatePurchaseView(APIView):
 
 
 class CreateCategoryView(APIView):
+    permission_classes = permissions.IsAuthenticated
+
     def post(self, request):
         try:
             c = getCategory(request.data['title'], request.user)

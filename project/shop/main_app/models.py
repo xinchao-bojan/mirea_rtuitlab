@@ -17,17 +17,20 @@ class Product(models.Model):
     description = models.TextField(verbose_name='Описание')
     price = models.DecimalField(decimal_places=2, max_digits=12, verbose_name='Цена',null=True)
     shop = models.ForeignKey('Shop', verbose_name='Магазин', on_delete=models.CASCADE)
-    quantity = models.IntegerField(verbose_name='Количество', default=0)
+    quantity = models.PositiveIntegerField(verbose_name='Количество', default=0)
     moderated = models.BooleanField(verbose_name='Готов к продаже', default=False)
 
     def __str__(self):
         return self.title
 
     def save(self, *args, **kwargs):
-        if not self.moderated:
-            for elem in CartProduct.objects.filter(main_product=self):
-                elem.delete()
-        super().save(*args, **kwargs)
+        if self.price <=0:
+            super().delete()
+        else:
+            if not self.moderated:
+                for elem in CartProduct.objects.filter(main_product=self):
+                    elem.delete()
+            super().save(*args, **kwargs)
 
 
 class Shop(models.Model):
@@ -68,7 +71,7 @@ class Cart(models.Model):
 
 class CartProduct(models.Model):
     main_product = models.ForeignKey(Product, verbose_name='Сам продукт', on_delete=models.CASCADE)
-    quantity = models.SmallIntegerField(verbose_name='Количество', default=0)
+    quantity = models.PositiveIntegerField(verbose_name='Количество', default=0)
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, verbose_name='Корзина')
     price = models.DecimalField(decimal_places=2, max_digits=12, verbose_name='Цена', null=True)
 
