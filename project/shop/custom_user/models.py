@@ -1,8 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
-# from shop.models import Cart
-
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None):

@@ -40,7 +40,6 @@ INSTALLED_APPS = [
 
     'main_app',
     'rest_framework',
-    'django_crontab',
 ]
 
 MIDDLEWARE = [
