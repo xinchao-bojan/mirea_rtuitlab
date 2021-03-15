@@ -14,6 +14,7 @@ from pathlib import Path
 import os
 
 from decouple import config
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -26,7 +27,7 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['factory']
+ALLOWED_HOSTS = []
 
 # Application definition
 
@@ -40,6 +41,7 @@ INSTALLED_APPS = [
 
     'main_app',
     'rest_framework',
+    'django_crontab',
 ]
 
 MIDDLEWARE = [
@@ -101,6 +103,10 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+CRONJOBS = [
+    ('* * * * *', 'main_app.views.delivering')
+]
+
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 
@@ -117,9 +123,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
-CRONJOBS = [
-    ('*/1 * * * *', 'main_app.cron.delivering')
-]
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(os.path.abspath(os.curdir), 'static')

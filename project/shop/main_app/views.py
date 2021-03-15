@@ -153,8 +153,10 @@ class DeliveryOfProductsView(APIView):
 
     def post(self, request):
         try:
+            print('1')
             if request.data['key'] != config('SECRET_KEY'):
-                return Response(status=status.HTTP_503_SERVICE_UNAVAILABLE)
+                print('2')
+                return Response('lol',status=status.HTTP_503_SERVICE_UNAVAILABLE)
             data = json.loads(request.data['products'])
             try:
                 s = Shop.objects.get(title=request.data['shop'])

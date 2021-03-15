@@ -15,10 +15,10 @@ services:
 
   factory:
     build: ./factory
-    command: sh -c "python3 manage.py collectstatic --noinput &&  gunicorn --bind 0.0.0.0:8003 factory.wsgi"
+    command: sh -c "python3 manage.py collectstatic --noinput &&  gunicorn --bind 0.0.0.0:8003 factory.wsgi && python manage.py crontab add && python3 manage.py crontab show"
     volumes:
       - static:/usr/src/factory/static
-      - D:/RTUITLAB/project/factory:/usr/src/factory
+      - /home/bojan/kek/mirea_rtuitlab/project/factory
     expose:
       - 8003
 
@@ -29,7 +29,7 @@ services:
       - "80:80"
     volumes:
       - static:/usr/src/factory/static
-      - D:/RTUITLAB/project/factory:/usr/src/factory
+      - /home/bojan/kek/mirea_rtuitlab/project/factory
     depends_on:
       - shop
       - purchase

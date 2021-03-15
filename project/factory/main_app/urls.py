@@ -6,4 +6,5 @@ from .views import *
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('request/', CooperationRequestView.as_view()),
+    path('kek/', KEK.as_view()),
 ]

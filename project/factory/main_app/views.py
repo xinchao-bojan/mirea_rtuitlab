@@ -45,12 +45,11 @@ class CooperationRequestView(APIView):
 
 
 def delivering():
-    print("00000000000000000000000000000000000000000000")
     for s in ShopTitle.objects.all():
         queryset = []
         for dr in DeliveryRequest.objects.filter(shop=s):
             d = {'title': dr.product.title,
-                 'quantity': dr.quantity}
+                 'quantity': dr.quantity * dr.queue}
             queryset.append(d)
 
         data = {'key': config('SHOP_SECRET_KEY'),
@@ -62,10 +61,12 @@ def delivering():
             for dr in DeliveryRequest.objects.filter(shop=s):
                 dr.queue = 1
                 dr.save()
+            return Response(data, status=status.HTTP_201_CREATED)
         except OSError:
             for dr in DeliveryRequest.objects.filter(shop=s):
                 dr.queue += 1
                 dr.save()
+
 
 class KEK(APIView):
     def post(self, request):
@@ -73,7 +74,7 @@ class KEK(APIView):
             queryset = []
             for dr in DeliveryRequest.objects.filter(shop=s):
                 d = {'title': dr.product.title,
-                     'quantity': dr.quantity}
+                     'quantity': dr.quantity * dr.queue}
                 queryset.append(d)
 
             data = {'key': config('SHOP_SECRET_KEY'),
@@ -85,8 +86,9 @@ class KEK(APIView):
                 for dr in DeliveryRequest.objects.filter(shop=s):
                     dr.queue = 1
                     dr.save()
+                return Response(data, status=status.HTTP_201_CREATED)
             except OSError:
                 for dr in DeliveryRequest.objects.filter(shop=s):
                     dr.queue += 1
                     dr.save()
-        return Response(config('SHOP_SECRET_KEY'))
+                return Response(data, status=status.HTTP_400_BAD_REQUEST)
