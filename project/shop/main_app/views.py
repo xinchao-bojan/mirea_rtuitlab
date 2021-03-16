@@ -45,15 +45,22 @@ class ProductDetailView(APIView):
 
     def get(self, request, shop_pk, product_pk):
         try:
-            serializer = ProductSerializer(Product.objects.get(pk=product_pk),
-                                           context={'request': request})
+            p = Product.objects.get(pk=product_pk, shop=Shop.objects.get(pk=shop_pk))
+            if p.moderated:
+                serializer = ProductSerializer(p,
+                                               context={'request': request})
+            else:
+                return Response('Product not available now', status=status.HTTP_404_NOT_FOUND)
         except Product.DoesNotExist:
             return Response("Product Does Not Exist", status=status.HTTP_404_NOT_FOUND)
+        except Shop.DoesNotExist:
+            return Response("Shop Does Not Exist", status=status.HTTP_404_NOT_FOUND)
         return Response(serializer.data)
 
 
 class CartListView(APIView):
-    permission_classes = [IsOwner]
+    permission_classes = [IsOwner, permissions.IsAuthenticated]
+
     pagination_class = CustomPagination
 
     def get(self, request):
@@ -90,7 +97,7 @@ class AddToCartView(APIView):
 
 
 class DeleteFromCartView(APIView):
-    permission_classes = [IsOwner]
+    permission_classes = [IsOwner, permissions.IsAuthenticated]
 
     def delete(self, request, cp_pk):
         try:
@@ -103,7 +110,7 @@ class DeleteFromCartView(APIView):
 
 
 class ClearCartView(APIView):
-    permission_classes = [IsOwner]
+    permission_classes = [IsOwner, permissions.IsAuthenticated]
 
     def delete(self, request):
         cart, created = Cart.objects.get_or_create(owner=request.user)
@@ -117,7 +124,7 @@ class PurchasingView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
-        r = requests.get('http://localhost:80/api/purchase/check_user/', data={'email': request.user.email})
+        r = requests.get('http://172.18.0.1:80/api/purchase/check_user/', data={'email': request.user.email})
         if r.status_code != 200:
             return Response('create acc, dude', status=status.HTTP_400_BAD_REQUEST)
         c, created = Cart.objects.get_or_create(owner=request.user)
@@ -150,12 +157,13 @@ class PurchasingView(APIView):
                 'title': shop.title,
                 'final_price': sc.final_price,
                 'products': json.dumps(queryset)}
-        r = requests.post('http://localhost:80/api/purchase/create_purchase/', data=data)
+        r = requests.post('http://172.18.0.1:80/api/purchase/create_purchase/', data=data)
 
         if r.status_code == 200:
+            data.pop('key')
             return Response(data, status=status.HTTP_201_CREATED)
         sc.delete()
-        return Response(':(', status=status.HTTP_400_BAD_REQUEST)
+        return Response(':( something went wrong', status=status.HTTP_400_BAD_REQUEST)
 
 
 class DeliveryOfProductsView(APIView):
@@ -185,13 +193,13 @@ class DeliveryOfProductsView(APIView):
 
 
 class ModerateProductView(APIView):
-    permission_classes = [IsAdmin]
+    permission_classes = [IsAdmin, permissions.IsAuthenticated]
 
     def get(self, request, pk):
         serializer = ProductSerializer(Product.objects.filter(moderated=False), context={'request': request}, many=True)
         return Response(serializer.data)
 
-    def put(self, request, pk):
+    def patch(self, request, pk):
         try:
             p = Product.objects.get(pk=pk)
         except Product.DoesNotExist:
@@ -210,16 +218,20 @@ class ModerateProductView(APIView):
 
 
 class CreateRequestView(APIView):
-    permission_classes = [IsAdmin]
+    permission_classes = [IsAdmin, permissions.IsAuthenticated]
 
     def post(self, request):
         try:
-            r = requests.post('http://localhost:80/api/factory/request/',
-                              data={'key': config('SECRET_KEY'),
-                                    'factory': request.data['factory'],
-                                    'shop': request.data['shop'],
-                                    'category': request.data['category'],
-                                    'products': json.dumps(request.data['products'])})
+            data = {'key': config('SECRET_KEY'),
+                    'factory': request.data['factory'],
+                    'shop': request.data['shop'],
+                    'category': Shop.objects.get(title=request.data['shop']).category_choicer,
+                    'products': json.dumps(request.data['products'])}
+            r = requests.post('http://172.18.0.1:80/api/factory/request/',
+                              data=data)
+            data.pop('key')
+            return Response(data, status=r.status_code)
         except KeyError:
             return Response('Add all info to ur request', status=status.HTTP_400_BAD_REQUEST)
-        return Response(status=r.status_code)
+        except Shop.DoesNotExist:
+            return Response('Shop does not exist', status=status.HTTP_404_NOT_FOUND)

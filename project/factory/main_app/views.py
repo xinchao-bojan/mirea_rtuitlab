@@ -39,7 +39,7 @@ class CooperationRequestView(APIView):
                 queryset.append(d)
 
         except KeyError:
-            return Response('гыг')
+            return Response('KeyError', status=status.HTTP_400_BAD_REQUEST)
 
         serializer = DeliveryRequestSerializer(queryset, context={'request': request}, many=True)
         return Response(serializer.data)
@@ -67,11 +67,37 @@ def delivering():
             for dr in DeliveryRequest.objects.filter(shop=s):
                 dr.queue += 1
                 dr.save()
-            return Response('Shop does not answer',status=status.HTTP_503_SERVICE_UNAVAILABLE)
+            return Response('Shop does not answer', status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
 
-class KEK(APIView):
-    permission_classes = [IsAdmin]
+class DeliveryView(APIView):
 
     def post(self, request):
-        return delivering()
+        if request.data['key'] != config('SECRET_KEY'):
+            return Response(status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        for s in ShopTitle.objects.all():
+            queryset = []
+            for dr in DeliveryRequest.objects.filter(shop=s):
+                d = {'title': dr.product.title,
+                     'quantity': dr.quantity * dr.queue}
+                queryset.append(d)
+
+            data = {'key': config('SHOP_SECRET_KEY'),
+                    'shop': s.title,
+                    'products': json.dumps(queryset)}
+            try:
+                r = requests.post('http://172.18.0.1:80/api/shop/delivery/',
+                                  data=data)
+                for dr in DeliveryRequest.objects.filter(shop=s):
+                    dr.queue = 1
+                    dr.save()
+                return Response(
+                    DeliveryRequestSerializer(DeliveryRequest.objects.all(), context={'request': request}, many=True).data,
+                    status=status.HTTP_201_CREATED)
+            except OSError:
+                for dr in DeliveryRequest.objects.filter(shop=s):
+                    dr.queue += 1
+                    dr.save()
+                return Response(
+                    DeliveryRequestSerializer(DeliveryRequest.objects.all(), context={'request': request}, many=True).data,
+                    status=status.HTTP_503_SERVICE_UNAVAILABLE)

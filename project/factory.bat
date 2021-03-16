@@ -1,1 +1,0 @@
-factory\Scripts\activate & docker-compose up

@@ -19,8 +19,8 @@ class ProductMPSerializer(serializers.ModelSerializer):
 class CartSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cart
-        depth = 1
-        fields = ('final_price', 'owner', 'cartproduct_set',)
+        depth = 2
+        fields = ('id', 'final_price',  'cartproduct_set',)
 
 
 class CartProductSerializer(serializers.ModelSerializer):
@@ -34,11 +34,11 @@ class CheckProductSerializer(serializers.ModelSerializer):
     class Meta:
         depth = 1
         model = CheckProduct
-        fields = ('title', 'id', 'quantity',)
+        fields = ('id', 'title', 'id', 'quantity',)
 
 
 class ShopSerializer(serializers.ModelSerializer):
     class Meta:
         depth = 1
         model = Shop
-        fields = ('title', 'category_choicer')
+        fields = ('id', 'title', 'category_choicer')

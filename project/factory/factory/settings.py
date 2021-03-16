@@ -41,7 +41,6 @@ INSTALLED_APPS = [
 
     'main_app',
     'rest_framework',
-    'django_crontab',
 ]
 
 MIDDLEWARE = [
@@ -101,10 +100,6 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
-]
-
-CRONJOBS = [
-    ('* * * * *', 'main_app.views.delivering')
 ]
 
 # Internationalization
