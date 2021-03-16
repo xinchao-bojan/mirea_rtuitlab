@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from decouple import config
 
+from .permissions import IsAdmin
 from .serializers import *
 
 
@@ -66,29 +67,11 @@ def delivering():
             for dr in DeliveryRequest.objects.filter(shop=s):
                 dr.queue += 1
                 dr.save()
+            return Response('Shop does not answer',status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
 
 class KEK(APIView):
-    def post(self, request):
-        for s in ShopTitle.objects.all():
-            queryset = []
-            for dr in DeliveryRequest.objects.filter(shop=s):
-                d = {'title': dr.product.title,
-                     'quantity': dr.quantity * dr.queue}
-                queryset.append(d)
+    permission_classes = [IsAdmin]
 
-            data = {'key': config('SHOP_SECRET_KEY'),
-                    'shop': s.title,
-                    'products': json.dumps(queryset)}
-            try:
-                r = requests.post('http://localhost:80/api/shop/delivery/',
-                                  data=data)
-                for dr in DeliveryRequest.objects.filter(shop=s):
-                    dr.queue = 1
-                    dr.save()
-                return Response(data, status=status.HTTP_201_CREATED)
-            except OSError:
-                for dr in DeliveryRequest.objects.filter(shop=s):
-                    dr.queue += 1
-                    dr.save()
-                return Response(data, status=status.HTTP_400_BAD_REQUEST)
+    def post(self, request):
+        return delivering()

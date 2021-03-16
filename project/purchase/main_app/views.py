@@ -64,7 +64,7 @@ class CreatePurchaseView(APIView):
 
 class PurchaseByCategoryListView(APIView):
     pagination_class = CustomPagination
-    permission_classes = permissions.IsAuthenticated
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, category):
         c = getCategory(category, request.user)
@@ -81,7 +81,7 @@ class PurchaseByCategoryListView(APIView):
 
 class PurchaseListView(APIView):
     pagination_class = CustomPagination
-    permission_classes = permissions.IsAuthenticated
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
         serializer = PurchaseSerializer(Purchase.objects.filter(owner=request.user).order_by('category__title'),
@@ -91,7 +91,7 @@ class PurchaseListView(APIView):
 
 
 class UpdatePurchaseView(APIView):
-    permission_classes = permissions.IsAuthenticated
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, pk):
         try:
@@ -116,7 +116,7 @@ class UpdatePurchaseView(APIView):
 
 
 class CreateCategoryView(APIView):
-    permission_classes = permissions.IsAuthenticated
+    permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
         try:

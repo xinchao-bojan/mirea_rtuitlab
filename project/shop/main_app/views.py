@@ -2,6 +2,7 @@ import json
 
 import requests
 from django.shortcuts import render
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import generics, permissions, status
@@ -12,14 +13,21 @@ from .models import *
 from .permissions import *
 
 
+class CustomPagination(PageNumberPagination):
+    page_size = 10
+    max_page_size = 30
+
+
 class ShopListView(generics.ListAPIView):
     serializer_class = ShopSerializer
     queryset = Shop.objects.all().order_by('-title')
-    permission_classes = permissions.IsAuthenticatedOrReadOnly
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    pagination_class = CustomPagination
 
 
 class ProductInShopView(APIView):
-    permission_classes = permissions.IsAuthenticatedOrReadOnly
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    pagination_class = CustomPagination
 
     def get(self, request, shop_pk):
         try:
@@ -33,7 +41,7 @@ class ProductInShopView(APIView):
 
 
 class ProductDetailView(APIView):
-    permission_classes = permissions.IsAuthenticatedOrReadOnly
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get(self, request, shop_pk, product_pk):
         try:
@@ -45,7 +53,8 @@ class ProductDetailView(APIView):
 
 
 class CartListView(APIView):
-    permission_classes = IsOwner
+    permission_classes = [IsOwner]
+    pagination_class = CustomPagination
 
     def get(self, request):
         cart, created = Cart.objects.get_or_create(owner=request.user)
@@ -54,7 +63,7 @@ class CartListView(APIView):
 
 
 class AddToCartView(APIView):
-    permission_classes = permissions.IsAuthenticated
+    permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, pk):
         try:
@@ -81,7 +90,7 @@ class AddToCartView(APIView):
 
 
 class DeleteFromCartView(APIView):
-    permission_classes = IsOwner
+    permission_classes = [IsOwner]
 
     def delete(self, request, cp_pk):
         try:
@@ -94,7 +103,7 @@ class DeleteFromCartView(APIView):
 
 
 class ClearCartView(APIView):
-    permission_classes = IsOwner
+    permission_classes = [IsOwner]
 
     def delete(self, request):
         cart, created = Cart.objects.get_or_create(owner=request.user)
@@ -105,7 +114,7 @@ class ClearCartView(APIView):
 
 
 class PurchasingView(APIView):
-    permission_classes = permissions.IsAuthenticated
+    permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
         r = requests.get('http://localhost:80/api/purchase/check_user/', data={'email': request.user.email})
@@ -156,7 +165,7 @@ class DeliveryOfProductsView(APIView):
             print('1')
             if request.data['key'] != config('SECRET_KEY'):
                 print('2')
-                return Response('lol',status=status.HTTP_503_SERVICE_UNAVAILABLE)
+                return Response('lol', status=status.HTTP_503_SERVICE_UNAVAILABLE)
             data = json.loads(request.data['products'])
             try:
                 s = Shop.objects.get(title=request.data['shop'])
@@ -176,7 +185,7 @@ class DeliveryOfProductsView(APIView):
 
 
 class ModerateProductView(APIView):
-    permission_classes = IsAdmin
+    permission_classes = [IsAdmin]
 
     def get(self, request, pk):
         serializer = ProductSerializer(Product.objects.filter(moderated=False), context={'request': request}, many=True)
@@ -201,7 +210,7 @@ class ModerateProductView(APIView):
 
 
 class CreateRequestView(APIView):
-    permission_classes = IsAdmin
+    permission_classes = [IsAdmin]
 
     def post(self, request):
         try:
