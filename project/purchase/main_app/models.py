@@ -6,7 +6,11 @@ CustomUser = get_user_model()
 
 
 class Category(models.Model):
-    title = models.CharField(max_length=255, verbose_name='Название продукта', unique=True)
+    class Meta:
+        verbose_name = 'Категория'
+        verbose_name_plural = 'Категории'
+
+    title = models.CharField(max_length=255, verbose_name='Название категории', unique=True)
     owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name='Владелец', blank=True, null=True)
     default = models.BooleanField(verbose_name='Стандартная категория', default=False)
 
@@ -15,6 +19,9 @@ class Category(models.Model):
 
 
 class Purchase(models.Model):
+    class Meta:
+        verbose_name = 'Покупка'
+        verbose_name_plural = 'Покупки'
     owner = models.ForeignKey(CustomUser, verbose_name='Владелец', on_delete=models.CASCADE)
     title = models.CharField(max_length=255, verbose_name='Название продукта')
     date = models.DateTimeField(verbose_name='Дата покупки')
@@ -38,6 +45,9 @@ class Purchase(models.Model):
 
 
 class PurchaseProduct(models.Model):
+    class Meta:
+        verbose_name = 'Продукт в покупке'
+        verbose_name_plural = 'Продукты в покупке'
     title = models.CharField(max_length=127, verbose_name='Наименование')
     purchase = models.ForeignKey(Purchase, verbose_name='Покупка', on_delete=models.CASCADE)
     product_pk = models.PositiveIntegerField(verbose_name='Артикул продукта')

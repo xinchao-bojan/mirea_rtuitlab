@@ -73,7 +73,10 @@ def delivering():
 class DeliveryView(APIView):
 
     def post(self, request):
-        if request.data['key'] != config('SECRET_KEY'):
+        try:
+            if request.data['key'] != config('SECRET_KEY'):
+                return Response(status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        except KeyError:
             return Response(status=status.HTTP_503_SERVICE_UNAVAILABLE)
         for s in ShopTitle.objects.all():
             queryset = []
@@ -91,13 +94,13 @@ class DeliveryView(APIView):
                 for dr in DeliveryRequest.objects.filter(shop=s):
                     dr.queue = 1
                     dr.save()
-                return Response(
-                    DeliveryRequestSerializer(DeliveryRequest.objects.all(), context={'request': request}, many=True).data,
-                    status=status.HTTP_201_CREATED)
+                data.pop('key')
+                return Response(data,
+                                status=status.HTTP_201_CREATED)
             except OSError:
                 for dr in DeliveryRequest.objects.filter(shop=s):
                     dr.queue += 1
                     dr.save()
                 return Response(
-                    DeliveryRequestSerializer(DeliveryRequest.objects.all(), context={'request': request}, many=True).data,
+                    'Something went wrong(',
                     status=status.HTTP_503_SERVICE_UNAVAILABLE)

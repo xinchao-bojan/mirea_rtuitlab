@@ -27,10 +27,13 @@ purchase - "SECRET_KEY". After in project directory run this commands:
 If errors occur, the ```docker-compose up --build``` can help. Download my docker image ,if it is still not working.
 
 # API documentation
+## Admin panel
+
+To have access to the admin panel enter /admin after the service path
 
 ## Auth requests
 
-Auth requests for Purchase and Shop is the same that differ only start of path. Factory app has not auth functions.
+Auth requests for Purchase and Shop is the same that differ only start of path. Factory app has not auth functions. There are a lot of functions in my authentication system (reset passwords and logins, deleting,patching users) but I will write only useful for this task
 
 ## POST /auth/jwt/create/
 
@@ -56,31 +59,8 @@ Response example
   "access": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjE4NDg5MDIwLCJqdGkiOiI0ZWRhZmM5Mzc1Zjk0Nzk3YWZhYzg5NDEzMDkyYzAxMyIsInVzZXJfaWQiOjF9.dtUvmEQsEAUya0AcUTbMhQdGA09ViGWUFxRBPz-D8_w"
 }
 ```
+---
 
-## POST /auth/jwt/create/
-
-Takes a set of user credentials and returns an access and refresh JSON web token pair to prove the authentication of
-those credentials
-
-#### Example
-
-Request example
-
-```json
-{
-  "email": "admin@mirea.ru",
-  "password": "admin"
-}
-```
-
-Response example
-
-```json
-{
-  "refresh": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTYxODQ4OTAyMCwianRpIjoiMGZkOThiZWEzYWMyNDEyY2E4NzQzMGJjZTk0MmYxMDAiLCJ1c2VyX2lkIjoxfQ.DpIyRE8ZnKeAbyaJPL0gykO8jN0OZnrZmm1IP_3mT3U",
-  "access": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjE4NDg5MDIwLCJqdGkiOiI0ZWRhZmM5Mzc1Zjk0Nzk3YWZhYzg5NDEzMDkyYzAxMyIsInVzZXJfaWQiOjF9.dtUvmEQsEAUya0AcUTbMhQdGA09ViGWUFxRBPz-D8_w"
-}
-```
 
 ## POST /auth/jwt/refresh/
 
@@ -103,6 +83,7 @@ Response example
   "access": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjE4NDg5MTY2LCJqdGkiOiJmMWJjOTUzMDMxZjY0NDM3ODlkN2NhNTJlMWNhYjJkYyIsInVzZXJfaWQiOjF9.TRY027u3X6fbdQGatXSo6eyKoZ6GkS52vg3ClxkwwrU"
 }
 ```
+---
 
 ## POST /auth/jwt/verify/
 
@@ -124,13 +105,10 @@ Response example
 ```json
 {}
 ```
+---
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////
+## POST /auth/users
 
-## POST /auth/jwt/verify/
-
-Takes a token and indicates if it is valid. This view provides no information about a token's fitness for a particular
-use.
 
 #### Example
 
@@ -138,389 +116,242 @@ Request example
 
 ```json
 {
-  "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjE4NDg5MTY2LCJqdGkiOiJmMWJjOTUzMDMxZjY0NDM3ODlkN2NhNTJlMWNhYjJkYyIsInVzZXJfaWQiOjF9.TRY027u3X6fbdQGatXSo6eyKoZ6GkS52vg3ClxkwwrU"
+  "email": "user@example.com",
+  "password": "string"
 }
 ```
 
 Response example
-
-```json
-{}
-```
-
-## POST /auth/jwt/verify/
-
-Takes a token and indicates if it is valid. This view provides no information about a token's fitness for a particular
-use.
-
-#### Example
-
-Request example
 
 ```json
 {
-  "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjE4NDg5MTY2LCJqdGkiOiJmMWJjOTUzMDMxZjY0NDM3ODlkN2NhNTJlMWNhYjJkYyIsInVzZXJfaWQiOjF9.TRY027u3X6fbdQGatXSo6eyKoZ6GkS52vg3ClxkwwrU"
+  "email": "user@example.com",
+  "id": 2
 }
 ```
+---
 
-Response example
-
-```json
-{}
-```
-
-## POST /auth/jwt/verify/
-
-Takes a token and indicates if it is valid. This view provides no information about a token's fitness for a particular
-use.
-
-#### Example
-
-Request example
-
-```json
-{
-  "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjE4NDg5MTY2LCJqdGkiOiJmMWJjOTUzMDMxZjY0NDM3ODlkN2NhNTJlMWNhYjJkYyIsInVzZXJfaWQiOjF9.TRY027u3X6fbdQGatXSo6eyKoZ6GkS52vg3ClxkwwrU"
-}
-```
-
-Response example
-
-```json
-{}
-```
-
-## POST /auth/jwt/verify/
-
-Takes a token and indicates if it is valid. This view provides no information about a token's fitness for a particular
-use.
-
-#### Example
-
-Request example
-
-```json
-{
-  "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjE4NDg5MTY2LCJqdGkiOiJmMWJjOTUzMDMxZjY0NDM3ODlkN2NhNTJlMWNhYjJkYyIsInVzZXJfaWQiOjF9.TRY027u3X6fbdQGatXSo6eyKoZ6GkS52vg3ClxkwwrU"
-}
-```
-
-Response example
-
-```json
-{}
-```
-
-## POST /auth/jwt/verify/
-
-Takes a token and indicates if it is valid. This view provides no information about a token's fitness for a particular
-use.
-
-#### Example
-
-Request example
-
-```json
-{
-  "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjE4NDg5MTY2LCJqdGkiOiJmMWJjOTUzMDMxZjY0NDM3ODlkN2NhNTJlMWNhYjJkYyIsInVzZXJfaWQiOjF9.TRY027u3X6fbdQGatXSo6eyKoZ6GkS52vg3ClxkwwrU"
-}
-```
-
-Response example
-
-```json
-{}
-```
-
-## POST /auth/jwt/verify/
-
-Takes a token and indicates if it is valid. This view provides no information about a token's fitness for a particular
-use.
-
-#### Example
-
-Request example
-
-```json
-{
-  "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjE4NDg5MTY2LCJqdGkiOiJmMWJjOTUzMDMxZjY0NDM3ODlkN2NhNTJlMWNhYjJkYyIsInVzZXJfaWQiOjF9.TRY027u3X6fbdQGatXSo6eyKoZ6GkS52vg3ClxkwwrU"
-}
-```
-
-Response example
-
-```json
-{}
-```
-
-## POST /auth/jwt/verify/
-
-Takes a token and indicates if it is valid. This view provides no information about a token's fitness for a particular
-use.
-
-#### Example
-
-Request example
-
-```json
-{
-  "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjE4NDg5MTY2LCJqdGkiOiJmMWJjOTUzMDMxZjY0NDM3ODlkN2NhNTJlMWNhYjJkYyIsInVzZXJfaWQiOjF9.TRY027u3X6fbdQGatXSo6eyKoZ6GkS52vg3ClxkwwrU"
-}
-```
-
-Response example
-
-```json
-{}
-```
-
-## POST /auth/jwt/verify/
-
-Takes a token and indicates if it is valid. This view provides no information about a token's fitness for a particular
-use.
-
-#### Example
-
-Request example
-
-```json
-{
-  "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjE4NDg5MTY2LCJqdGkiOiJmMWJjOTUzMDMxZjY0NDM3ODlkN2NhNTJlMWNhYjJkYyIsInVzZXJfaWQiOjF9.TRY027u3X6fbdQGatXSo6eyKoZ6GkS52vg3ClxkwwrU"
-}
-```
-
-Response example
-
-```json
-{}
-```
-
-## POST /auth/jwt/verify/
-
-Takes a token and indicates if it is valid. This view provides no information about a token's fitness for a particular
-use.
-
-#### Example
-
-Request example
-
-```json
-{
-  "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjE4NDg5MTY2LCJqdGkiOiJmMWJjOTUzMDMxZjY0NDM3ODlkN2NhNTJlMWNhYjJkYyIsInVzZXJfaWQiOjF9.TRY027u3X6fbdQGatXSo6eyKoZ6GkS52vg3ClxkwwrU"
-}
-```
-
-Response example
-
-```json
-{}
-```
-
-## POST /auth/jwt/verify/
-
-Takes a token and indicates if it is valid. This view provides no information about a token's fitness for a particular
-use.
-
-#### Example
-
-Request example
-
-```json
-{
-  "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjE4NDg5MTY2LCJqdGkiOiJmMWJjOTUzMDMxZjY0NDM3ODlkN2NhNTJlMWNhYjJkYyIsInVzZXJfaWQiOjF9.TRY027u3X6fbdQGatXSo6eyKoZ6GkS52vg3ClxkwwrU"
-}
-```
-
-Response example
-
-```json
-{}
-```
-
-## POST /auth/jwt/verify/
-
-Takes a token and indicates if it is valid. This view provides no information about a token's fitness for a particular
-use.
-
-#### Example
-
-Request example
-
-```json
-{
-  "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjE4NDg5MTY2LCJqdGkiOiJmMWJjOTUzMDMxZjY0NDM3ODlkN2NhNTJlMWNhYjJkYyIsInVzZXJfaWQiOjF9.TRY027u3X6fbdQGatXSo6eyKoZ6GkS52vg3ClxkwwrU"
-}
-```
-
-Response example
-
-```json
-{}
-```
-
-## POST /auth/jwt/verify/
-
-Takes a token and indicates if it is valid. This view provides no information about a token's fitness for a particular
-use.
-
-#### Example
-
-Request example
-
-```json
-{
-  "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjE4NDg5MTY2LCJqdGkiOiJmMWJjOTUzMDMxZjY0NDM3ODlkN2NhNTJlMWNhYjJkYyIsInVzZXJfaWQiOjF9.TRY027u3X6fbdQGatXSo6eyKoZ6GkS52vg3ClxkwwrU"
-}
-```
-
-Response example
-
-```json
-{}
-```
-
-## POST /auth/jwt/verify/
-
-Takes a token and indicates if it is valid. This view provides no information about a token's fitness for a particular
-use.
-
-#### Example
-
-Request example
-
-```json
-{
-  "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjE4NDg5MTY2LCJqdGkiOiJmMWJjOTUzMDMxZjY0NDM3ODlkN2NhNTJlMWNhYjJkYyIsInVzZXJfaWQiOjF9.TRY027u3X6fbdQGatXSo6eyKoZ6GkS52vg3ClxkwwrU"
-}
-```
-
-Response example
-
-```json
-{}
-```
-
-## POST /auth/jwt/verify/
-
-Takes a token and indicates if it is valid. This view provides no information about a token's fitness for a particular
-use.
-
-#### Example
-
-Request example
-
-```json
-{
-  "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjE4NDg5MTY2LCJqdGkiOiJmMWJjOTUzMDMxZjY0NDM3ODlkN2NhNTJlMWNhYjJkYyIsInVzZXJfaWQiOjF9.TRY027u3X6fbdQGatXSo6eyKoZ6GkS52vg3ClxkwwrU"
-}
-```
-
-Response example
-
-```json
-{}
-```
-
-## POST /auth/jwt/verify/
-
-Takes a token and indicates if it is valid. This view provides no information about a token's fitness for a particular
-use.
-
-#### Example
-
-Request example
-
-```json
-{
-  "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjE4NDg5MTY2LCJqdGkiOiJmMWJjOTUzMDMxZjY0NDM3ODlkN2NhNTJlMWNhYjJkYyIsInVzZXJfaWQiOjF9.TRY027u3X6fbdQGatXSo6eyKoZ6GkS52vg3ClxkwwrU"
-}
-```
-
-Response example
-
-```json
-{}
-```
-
-## POST /auth/jwt/verify/
-
-Takes a token and indicates if it is valid. This view provides no information about a token's fitness for a particular
-use.
-
-#### Example
-
-Request example
-
-```json
-{
-  "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjE4NDg5MTY2LCJqdGkiOiJmMWJjOTUzMDMxZjY0NDM3ODlkN2NhNTJlMWNhYjJkYyIsInVzZXJfaWQiOjF9.TRY027u3X6fbdQGatXSo6eyKoZ6GkS52vg3ClxkwwrU"
-}
-```
-
-Response example
-
-```json
-{}
-```
-
-## POST /auth/jwt/verify/
-
-Takes a token and indicates if it is valid. This view provides no information about a token's fitness for a particular
-use.
-
-#### Example
-
-Request example
-
-```json
-{
-  "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjE4NDg5MTY2LCJqdGkiOiJmMWJjOTUzMDMxZjY0NDM3ODlkN2NhNTJlMWNhYjJkYyIsInVzZXJfaWQiOjF9.TRY027u3X6fbdQGatXSo6eyKoZ6GkS52vg3ClxkwwrU"
-}
-```
-
-Response example
-
-```json
-{}
-```
-
-## POST /auth/jwt/verify/
-
-Takes a token and indicates if it is valid. This view provides no information about a token's fitness for a particular
-use.
-
-#### Example
-
-Request example
-
-```json
-{
-  "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjE4NDg5MTY2LCJqdGkiOiJmMWJjOTUzMDMxZjY0NDM3ODlkN2NhNTJlMWNhYjJkYyIsInVzZXJfaWQiOjF9.TRY027u3X6fbdQGatXSo6eyKoZ6GkS52vg3ClxkwwrU"
-}
-```
-
-Response example
-
-```json
-{}
-```
 
 ///////////////////////////////////////////////////////////////////
 
 ## Purchase service
 
+Every path to this service starts with ```/api/purchase/```
+Superuser : login:admin@mirea.ru password: admin
+
+
 ### POST /create_purchase
 
-Connecting shop and purchase services and create purchase objects (checks). Return all purchase by category. Permission
-level: owner
+Connecting shop and purchase services and create purchase objects (checks). Uses a secret key and cannot be called by
+the user.
 
-/////////////////////////////////////////////////////////////////////////////////////
+---
+
+### GET /purchase_list
+
+Return list of purchases. Permission level: owner Response example
+
+#### Example
+
+Response example
+
+```json
+[
+  {
+    "id": 19,
+    "final_price": "12.00",
+    "purchaseproduct_set": [
+      {
+        "id": 8,
+        "title": "iphone 69",
+        "product_pk": 1,
+        "quantity": 2,
+        "purchase": 19
+      }
+    ],
+    "category": {
+      "id": 5,
+      "title": "electronics",
+      "default": true,
+      "owner": null
+    },
+    "pm_choicer": "default"
+  },
+  {
+    "id": 20,
+    "final_price": "9330.00",
+    "purchaseproduct_set": [
+      {
+        "id": 9,
+        "title": "iphone 69",
+        "product_pk": 1,
+        "quantity": 2,
+        "purchase": 20
+      },
+      {
+        "id": 10,
+        "title": "macbook",
+        "product_pk": 2,
+        "quantity": 2,
+        "purchase": 20
+      }
+    ],
+    "category": {
+      "id": 5,
+      "title": "electronics",
+      "default": true,
+      "owner": null
+    },
+    "pm_choicer": "default"
+  },
+  {
+    "id": 21,
+    "final_price": "9122.00",
+    "purchaseproduct_set": [
+      {
+        "id": 11,
+        "title": "apple watch",
+        "product_pk": 3,
+        "quantity": 2,
+        "purchase": 21
+      }
+    ],
+    "category": {
+      "id": 5,
+      "title": "electronics",
+      "default": true,
+      "owner": null
+    },
+    "pm_choicer": "default"
+  }
+]
+```
+
+---
+
+### GET /purchase_by_category/<str:category>
+
+Return a list of purchases by category . Pagination available. Permission level : owner
+#### Example
+
+Response example
+
+```json
+[
+    {
+        "id": 20,
+        "final_price": "9330.00",
+        "purchaseproduct_set": [
+            {
+                "id": 9,
+                "title": "iphone 69",
+                "product_pk": 1,
+                "quantity": 2,
+                "purchase": 20
+            },
+            {
+                "id": 10,
+                "title": "macbook",
+                "product_pk": 2,
+                "quantity": 2,
+                "purchase": 20
+            }
+        ],
+        "category": {
+            "id": 1,
+            "title": "grocery",
+            "default": true,
+            "owner": null
+        },
+        "pm_choicer": "cash"
+    }
+]
+```
+---
+
+### GET /update_purchase/<int:pk>
+
+Return a list of purchases by personal key . Permission level : owner
+
+#### Example
+
+Response example
+
+### PATCH /update_purchase/<int:pk>
+
+Update category or payment method . Permission level : owner
+
+#### Example
+
+Response example
+
+```json
+{
+  "id": 20,
+  "final_price": "9330.00",
+  "purchaseproduct_set": [
+    {
+      "id": 9,
+      "title": "iphone 69",
+      "product_pk": 1,
+      "quantity": 2,
+      "purchase": 20
+    },
+    {
+      "id": 10,
+      "title": "macbook",
+      "product_pk": 2,
+      "quantity": 2,
+      "purchase": 20
+    }
+  ],
+  "category": {
+    "id": 1,
+    "title": "grocery",
+    "default": true,
+    "owner": null
+  },
+  "pm_choicer": "cash"
+}
+```
+
+---
+###POST /create_category
+Create custom category. Permission level: Owner
+####Example
+Request example
+```json
+{
+    "title":"mirea"
+}
+```
+Response example
+```json
+"Категория mirea успешно создана"
+```
+---
+
+### GET /check_user
+
+Check if user has account in purchase app by email.
+#### Example
+Request example
+```json
+{
+    "email":"kek@mirea.ru"
+}
+```
+Response satus code 200 
+
+---
 
 ## Shop service
+Every path to this service starts with ```/api/shop/```
+Superuser : login:admin@mirea.ru password: admin
 
-### GET /shops
+### GET /purchase_by_category/<str:category>
 
-Return list of shops. Pagination available. Permission level : Anyone
+Return list of . Pagination available. Permission level : Anyone
 
 #### Example
 
@@ -542,6 +373,8 @@ Response example
 ```
 
 ---
+
+
 
 ### GET /shops/<int:shop_pk>
 
@@ -841,40 +674,24 @@ Response example
 ## Factory service
 
 Every path to this service starts with ```/api/factory/```
+Superuser : login:admin password: admin
 
 ## POST /delivery
+Can start delivery process by admin. Return products that had been delivered or response status code and message.
 
-Can start delivery process by admin. Response status code and message.
+
+Response example
+```json
+{
+    "shop": "503shop",
+    "products": "[{\"title\": \"iphone 69\", \"quantity\": 8}, {\"title\": \"macbook\", \"quantity\": 4}, {\"title\": \"apple watch\", \"quantity\": 10}]"
+}
+
+```
+---
 
 ## POST /request
 
 This path is used to connect shop and factory. Here is used SECRET_KEY to protect data. Because of this it is able
 requested only from shop app.
-
-## POST /request
-
-Creating DeliveryRequest that connect Shop and Factory. Return products, that will be produced by factory and code 201,
-if something goes wrong return error code and message.
-
-#### Example
-
-Request example
-
-```json
-{
-  "key": "1",
-  "factory": "factory_name",
-  "category": "grocery",
-  "shop": "shop_name",
-  "products": [
-    {
-      "title": "product1_title",
-      "quantity": 10
-    },  
-    {
-      "title": "product2_title",
-      "quantity": 11
-    }
-  ]
-}
 

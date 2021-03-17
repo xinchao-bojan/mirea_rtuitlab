@@ -2,6 +2,9 @@ from django.db import models
 
 
 class Factory(models.Model):
+    class Meta:
+        verbose_name = 'Завод'
+        verbose_name_plural = 'Заводы'
     title = models.CharField(max_length=255, verbose_name='Название завода', unique=True)
     productivity_coefficient = models.DecimalField(decimal_places=3, max_digits=5,
                                                    verbose_name='Коэффициент производительность')
@@ -34,6 +37,9 @@ class Factory(models.Model):
 
 
 class ShopTitle(models.Model):
+    class Meta:
+        verbose_name = 'Магазин'
+        verbose_name_plural = 'Магазины'
     title = models.CharField(max_length=255, verbose_name='Название магазина', unique=True)
 
     def __str__(self):
@@ -41,6 +47,9 @@ class ShopTitle(models.Model):
 
 
 class Product(models.Model):
+    class Meta:
+        verbose_name = 'Продукт'
+        verbose_name_plural = 'Продукты'
     title = models.CharField(max_length=255, verbose_name='Название продукта', unique=True)
 
     def __str__(self):
@@ -48,6 +57,9 @@ class Product(models.Model):
 
 
 class DeliveryRequest(models.Model):
+    class Meta:
+        verbose_name = 'Запрос сотрудничества'
+        verbose_name_plural = 'Запросы сотрудничества'
     shop = models.ForeignKey(ShopTitle, verbose_name='Магазин', on_delete=models.CASCADE)
     factory = models.ForeignKey(Factory, verbose_name='Завод', on_delete=models.CASCADE)
     product = models.ForeignKey(Product, verbose_name='Продукт', on_delete=models.CASCADE)
@@ -55,7 +67,7 @@ class DeliveryRequest(models.Model):
     queue = models.PositiveIntegerField(verbose_name='Количество неотправленных поставок', default=1)
 
     def __str__(self):
-        return f'{self.shop.title} + {self.factory.title}'
+        return f'{self.shop.title} + {self.factory.title} + {self.shop.title}'
 
     def delete(self, *args, **kwargs):
         f = self.factory

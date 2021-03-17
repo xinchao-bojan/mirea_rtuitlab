@@ -35,7 +35,7 @@ class CreatePurchaseView(APIView):
     def post(self, request):
         try:
             if request.data['key'] != config('SECRET_KEY'):
-                return Response('wrong key',status=status.HTTP_404_NOT_FOUND)
+                return Response('wrong key', status=status.HTTP_404_NOT_FOUND)
         except KeyError:
             return Response('u are not a shop', status=status.HTTP_404_NOT_FOUND)
 
@@ -95,12 +95,13 @@ class UpdatePurchaseView(APIView):
 
     def get(self, request, pk):
         try:
-            serializer = PurchaseSerializer(Purchase.objects.get(pk=pk), context={'request': request})
+            serializer = PurchaseSerializer(Purchase.objects.get(pk=pk, owner=request.user),
+                                            context={'request': request})
         except Purchase.DoesNotExist:
             return Response('Purchase Does Not Exist', status=status.HTTP_404_NOT_FOUND)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def put(self, request, pk):
+    def patch(self, request, pk):
         p = Purchase.objects.get(pk=pk)
         if 'category' in request.data:
             cat = getCategory(request.data['category'], request.user)

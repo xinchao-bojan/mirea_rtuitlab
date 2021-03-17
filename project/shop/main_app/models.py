@@ -31,6 +31,9 @@ class Product(models.Model):
 
 
 class Shop(models.Model):
+    class Meta:
+        verbose_name = 'Магазин'
+        verbose_name_plural = 'Магазины'
     title = models.CharField(max_length=63, verbose_name='Название магазина', unique=True)
     address = models.CharField(max_length=127, verbose_name='Адрес')
     phone_number = models.CharField(max_length=15, verbose_name='Номер телефона')
@@ -49,6 +52,9 @@ class Shop(models.Model):
 
 
 class Cart(models.Model):
+    class Meta:
+        verbose_name = 'Корзина'
+        verbose_name_plural = 'Корзины'
     final_price = models.DecimalField(decimal_places=2, max_digits=12, verbose_name='Общая стоимость', default=0)
     owner = models.OneToOneField(CustomUser, verbose_name='Владелец', on_delete=models.CASCADE)
     current_shop = models.CharField(max_length=127, verbose_name='Текущий магазин', default='')
@@ -67,6 +73,9 @@ class Cart(models.Model):
 
 
 class CartProduct(models.Model):
+    class Meta:
+        verbose_name = 'Продукт для корзины'
+        verbose_name_plural = 'Продукты для корзины'
     main_product = models.ForeignKey(Product, verbose_name='Сам продукт', on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(verbose_name='Количество', default=0)
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, verbose_name='Корзина')
@@ -87,6 +96,9 @@ class CartProduct(models.Model):
 
 
 class ShopCheck(models.Model):
+    class Meta:
+        verbose_name = 'Чек для магазина'
+        verbose_name_plural = 'Чеки для магазина'
     customer = models.ForeignKey(CustomUser, verbose_name='Покупатель', on_delete=models.CASCADE)
     date = models.DateTimeField(verbose_name='Дата покупки')
     final_price = models.DecimalField(decimal_places=2, max_digits=9, verbose_name='Сумма, потраченная на товар')
@@ -97,6 +109,9 @@ class ShopCheck(models.Model):
 
 
 class CheckProduct(models.Model):
+    class Meta:
+        verbose_name = 'Продукт для чека'
+        verbose_name_plural = 'Продукты для чека'
     title = models.CharField(max_length=127, verbose_name='Наименование')
     shop_check = models.ForeignKey(ShopCheck, verbose_name='Чек', on_delete=models.CASCADE)
     product_pk = models.IntegerField(verbose_name='Артикул продукта')
