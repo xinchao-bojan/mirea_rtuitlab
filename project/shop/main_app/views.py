@@ -27,7 +27,6 @@ class ShopListView(generics.ListAPIView):
 
 class ProductInShopView(APIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    pagination_class = CustomPagination
 
     def get(self, request, shop_pk):
         try:
@@ -61,7 +60,6 @@ class ProductDetailView(APIView):
 class CartListView(APIView):
     permission_classes = [IsOwner, permissions.IsAuthenticated]
 
-    pagination_class = CustomPagination
 
     def get(self, request):
         cart, created = Cart.objects.get_or_create(owner=request.user)
@@ -170,9 +168,7 @@ class DeliveryOfProductsView(APIView):
 
     def post(self, request):
         try:
-            print('1')
             if request.data['key'] != config('SECRET_KEY'):
-                print('2')
                 return Response('lol', status=status.HTTP_503_SERVICE_UNAVAILABLE)
             data = json.loads(request.data['products'])
             try:

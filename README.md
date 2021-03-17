@@ -9,15 +9,13 @@ this project I used default django pattern MVC (Model-View-Control).
 The main goal of services is:
 
 - factory produces products and sending it to shops service.
-- shops provides to user possibility to view shops and products list, adding in to cart and buy. After buying check
+- shops provide to user possibility to view shops and products list, adding in to cart and buy. After buying check
   sends to purchase service.
 - purchases store users checks.
 
 # Install and Run services
 
-To install services, clone this repository. In every project folder create .env file, that provide security of data. At
-factory .env must consist "SHOP_SECRET_KEY" and "SECRET_KEY", at shop - "PURCHASE_SECRET_KEY" and "SECRET_KEY", at
-purchase - "SECRET_KEY". After in project directory run this commands:
+To install services, clone this repository. On serious projects, I shouldn't be uploading .env to the repository. But for a quick check, I'll still download it. In project directory run this commands:
 
 ```
   docker-compose pull
@@ -132,12 +130,12 @@ Response example
 ---
 
 
-///////////////////////////////////////////////////////////////////
-
 ## Purchase service
 
 Every path to this service starts with ```/api/purchase/```
-Superuser : login:admin@mirea.ru password: admin
+
+
+Superuser :login:admin@mirea.ru password: admin
 
 
 ### POST /create_purchase
@@ -231,7 +229,7 @@ Response example
 
 ### GET /purchase_by_category/<str:category>
 
-Return a list of purchases by category . Pagination available. Permission level : owner
+Return a list of purchases by category . Permission level : owner
 #### Example
 
 Response example
@@ -347,11 +345,13 @@ Response satus code 200
 
 ## Shop service
 Every path to this service starts with ```/api/shop/```
-Superuser : login:admin@mirea.ru password: admin
 
-### GET /purchase_by_category/<str:category>
 
-Return list of . Pagination available. Permission level : Anyone
+Superuser :login:admin@mirea.ru password: admin
+
+### GET /shops
+
+Return list of shops . Pagination available. Permission level : Anyone
 
 #### Example
 
@@ -378,7 +378,7 @@ Response example
 
 ### GET /shops/<int:shop_pk>
 
-Return list of products, that can be bought in this shop. Pagination available. Permission level : Anyone
+Return list of products, that can be bought in this shop. Permission level : Anyone
 
 #### Example
 
@@ -674,7 +674,44 @@ Response example
 ## Factory service
 
 Every path to this service starts with ```/api/factory/```
+
 Superuser : login:admin password: admin
+
+## GET /list
+Return list of factories
+
+
+Response example
+```json
+[
+    {
+        "id": 2,
+        "title": "restaurant_zavod",
+        "category_choicer": "restaurant"
+    },
+    {
+        "id": 1,
+        "title": "grocery_zavod",
+        "category_choicer": "grocery"
+    },
+    {
+        "id": 4,
+        "title": "furniture_zavod",
+        "category_choicer": "furniture"
+    },
+    {
+        "id": 5,
+        "title": "electronics_zavod",
+        "category_choicer": "electronics"
+    },
+    {
+        "id": 3,
+        "title": "clothes_zavod",
+        "category_choicer": "clothes"
+    }
+]
+```
+---
 
 ## POST /delivery
 Can start delivery process by admin. Return products that had been delivered or response status code and message.

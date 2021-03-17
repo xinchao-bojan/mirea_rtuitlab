@@ -7,4 +7,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('request/', CooperationRequestView.as_view()),
     path('delivery/', DeliveryView.as_view()),
+    path('list/', ListFactoryView.as_view()),
 ]

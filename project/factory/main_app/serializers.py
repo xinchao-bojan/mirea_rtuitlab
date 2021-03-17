@@ -9,6 +9,13 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class FactorySerializer(serializers.ModelSerializer):
+    class Meta:
+        depth = 1
+        model = Factory
+        fields = ('id', 'title', 'category_choicer',)
+
+
 class DeliveryRequestSerializer(serializers.ModelSerializer):
     class Meta:
         depth = 1

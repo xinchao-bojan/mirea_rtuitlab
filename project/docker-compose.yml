@@ -2,19 +2,23 @@ version: '3.7'
 
 services:
   purchase:
-    build: ./purchase
+#    build: ./purchase
+    image: xinchaobojan/purchase
     command: sh -c " gunicorn --bind 0.0.0.0:8001 purchase.wsgi"
     expose:
       - 8001
 
   shop:
-    build: ./shop
+#    build: ./shop
+    image: xinchaobojan/shop
     command: sh -c " gunicorn --bind 0.0.0.0:8002 shop.wsgi"
     expose:
       - 8002
 
   factory:
-    build: ./factory
+#    build: ./factory
+    image: xinchaobojan/factory
+
     command: sh -c "python3 manage.py collectstatic --noinput &&  gunicorn --bind 0.0.0.0:8003 factory.wsgi"
     volumes:
       - static:/usr/src/factory/static
@@ -23,10 +27,13 @@ services:
       - 8003
 
   pycron:
-    build: ./cron
+#    build: ./cron
+    image: xinchaobojan/cron
 
   nginx:
-    build: ./nginx
+#    build: ./nginx
+    image: xinchaobojan/nginx
+
     ports:
       - "80:80"
     volumes:

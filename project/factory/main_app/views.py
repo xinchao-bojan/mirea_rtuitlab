@@ -1,7 +1,7 @@
 import json
 
 import requests
-from rest_framework import status
+from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from decouple import config
@@ -45,30 +45,6 @@ class CooperationRequestView(APIView):
         return Response(serializer.data)
 
 
-def delivering():
-    for s in ShopTitle.objects.all():
-        queryset = []
-        for dr in DeliveryRequest.objects.filter(shop=s):
-            d = {'title': dr.product.title,
-                 'quantity': dr.quantity * dr.queue}
-            queryset.append(d)
-
-        data = {'key': config('SHOP_SECRET_KEY'),
-                'shop': s.title,
-                'products': json.dumps(queryset)}
-        try:
-            r = requests.post('http://localhost:80/api/shop/delivery/',
-                              data=data)
-            for dr in DeliveryRequest.objects.filter(shop=s):
-                dr.queue = 1
-                dr.save()
-            return Response(data, status=status.HTTP_201_CREATED)
-        except OSError:
-            for dr in DeliveryRequest.objects.filter(shop=s):
-                dr.queue += 1
-                dr.save()
-            return Response('Shop does not answer', status=status.HTTP_503_SERVICE_UNAVAILABLE)
-
 
 class DeliveryView(APIView):
 
@@ -78,6 +54,7 @@ class DeliveryView(APIView):
                 return Response(status=status.HTTP_503_SERVICE_UNAVAILABLE)
         except KeyError:
             return Response(status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        req = []
         for s in ShopTitle.objects.all():
             queryset = []
             for dr in DeliveryRequest.objects.filter(shop=s):
@@ -94,13 +71,16 @@ class DeliveryView(APIView):
                 for dr in DeliveryRequest.objects.filter(shop=s):
                     dr.queue = 1
                     dr.save()
-                data.pop('key')
-                return Response(data,
-                                status=status.HTTP_201_CREATED)
             except OSError:
                 for dr in DeliveryRequest.objects.filter(shop=s):
                     dr.queue += 1
                     dr.save()
-                return Response(
-                    'Something went wrong(',
-                    status=status.HTTP_503_SERVICE_UNAVAILABLE)
+                req.append(s.title)
+        if not req:
+            return Response(status=status.HTTP_201_CREATED)
+        return Response(json.dumps(req), status=status.HTTP_404_NOT_FOUND)
+
+
+class ListFactoryView(generics.ListAPIView):
+    queryset = Factory.objects.all().order_by('-title')
+    serializer_class = FactorySerializer
